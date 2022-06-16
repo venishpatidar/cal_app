@@ -19,6 +19,7 @@ function CreateEvent(props) {
     end: "",
     description: "",
     schedulertype: "",
+    color:"#000000",
   });
 
   return (
@@ -91,9 +92,9 @@ function CreateEvent(props) {
               className="select"
               selected={newEvent.schedulertype}
               value={newEvent.selected}
-              onChange={(e) =>
-                setNewEvent({ ...newEvent, schedulertype: e.target.value })
-              }
+              onSelect={(e) => {
+                setNewEvent({ ...newEvent, schedulertype: e[0].value });
+              }}
             >
               <SelectOption value="scheduler1" label="scheduler1" />
               <SelectOption value="scheduler2" label="scheduler2" />
@@ -107,10 +108,10 @@ function CreateEvent(props) {
             <Input
               className="col-field"
               type="color"
-              selected={newEvent.color}
-              onChange={(e) =>
-                setNewEvent({ ...newEvent, type: e.target.value })
-              }
+              value={newEvent.color}
+              onChange={(e) => {
+                setNewEvent({ ...newEvent, color: e.target.value });
+              }}
               style={{ marginRight: "20px", marginLeft: "5px" }}
             />
           </div>
