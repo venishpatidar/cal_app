@@ -105,7 +105,6 @@ export default function EditEvent(props) {
               value={color}
               onChange={(e) => {
                 setColor(e.target.value);
-                console.log(e.target.value)
               }}
               style={{ marginRight: "20px", marginLeft: "5px" }}
             />
