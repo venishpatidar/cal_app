@@ -52,9 +52,9 @@ function CreateEvent(props) {
               dateFormat="DD/MM/YYYY"
               className="start-date"
               selected={newEvent.start}
-              onChange={(start) =>
-                setNewEvent({ ...newEvent, start: new Date(start) })
-              }
+              onChange={(start) =>{
+                setNewEvent({ ...newEvent, start: new Date(start) .getTime()})
+              }}
             />
           </div>
         </div>
@@ -66,7 +66,7 @@ function CreateEvent(props) {
               className="end-date"
               selected={newEvent.end}
               onChange={(end) =>
-                setNewEvent({ ...newEvent, end: new Date(end) })
+                setNewEvent({ ...newEvent, end: new Date(end) .getTime() })
               }
             />
           </div>
