@@ -3,44 +3,46 @@ import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import { useState } from "react";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import "@momentum-ui/core/css/momentum-ui.min.css";
-import "../styles/index.css";
+import "@momentum-ui/core/css/momentum-ui.css";
+import "../../styles/index.css";
 import "react-datetime/css/react-datetime.css";
 import { Button } from "@momentum-ui/react";
-import { firestore } from "../../firebase-config";
-import CreateEvent from "./CreateEvent";
-import EditEvent from "./EditEvent";
-import { addDoc, collection, onSnapshot } from "firebase/firestore";
+import { firestore } from "../../config/firebase-config";
+import EventModal from "./EventModal";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 
 const localizer = momentLocalizer(moment);
+
+const Loading = (isVisible)=>{
+  return(
+    <div style={{display:isVisible?"none":'initial',position:'absolute',background:'rgba(0,0,0,0.4)',width:'100%',zIndex:10}}>
+      <div className="spinner main">
+        <i
+          id="loading-spinner"
+          className="md-spinner md-spinner--36 md-spinner--blue"
+        />
+        <p style={{color:'white'}} className="wait-message">Please wait, fetching data...</p>
+      </div>
+    </div>
+  )
+}
 
 export default function Cal() {
   const [allEvents, setAllEvents] = useState([]);
   const [showCreateModal, setCreateModalStatus] = useState(false);
   const [showEditModal, setEditModalStatus] = useState(false);
   const [selectedEventObj, setSelectedEventObj] = useState({});
+  const [isFetching, setIsFetching] = useState(true);
+  const [overLayLoading,setOverLayLoading] = useState(false)
+  const populatEventFunction = (currentMonth)=>{
 
-  const createEvent = (newEvent) => {
-    addDoc(collection(firestore, "Events"), {
-      title: newEvent.title,
-      start: newEvent.start,
-      end: newEvent.end,
-      description: newEvent.description,
-      schedulertype: newEvent.schedulertype,
-      color:newEvent.color,
-    })
-    .then(() => {
-      setCreateModalStatus(false);
-    })
-    .catch((error) => {
-      alert(error.message);
-    });
-  };
+    const Q = query(collection(firestore, "Events"), where("months", "array-contains", currentMonth));
 
-  useEffect(() => {
-    const unsubscribeEventListner = onSnapshot(collection(firestore, "Events"),async (doc) => {
+    const unsubscribeEventListner = onSnapshot(
+      Q,
+      async (doc) => {
         if (doc.docs) {
-          let arrfromobj = doc.docs.map((data, index) => {
+          let arrfromobj = doc.docs.map((data) => {
             let obj = {
               id: data.id,
               title: data.data().title,
@@ -53,54 +55,72 @@ export default function Cal() {
             return obj;
           });
           let resolved = await Promise.all(arrfromobj);
-          setAllEvents(resolved);
-      } else {
-        setAllEvents([]);
+          setAllEvents(resolved)
+          setIsFetching(false);
+          setOverLayLoading(false)
+        } else {
+          setAllEvents([]);
+          setIsFetching(false);
+          setOverLayLoading(false)
+        }
       }
-    });
+    );
     return unsubscribeEventListner;
+  }
+  useEffect( () => {
+    const dt = new Date()
+    return populatEventFunction(dt.getFullYear()+"-"+(dt.getMonth()))
   }, []);
 
-
+  // to style the events
   const eventStyleGetter = (event) => {
     const style = {
       backgroundColor: event?.color,
       borderRadius: "5px",
       opacity: 1,
-      display: "block",
       color: "white",
+      display: "block",
     };
     return { style };
   };
 
+  if (isFetching) {
+    return (
+      <div className="spinner main">
+        <i
+          id="loading-spinner"
+          className="md-spinner md-spinner--36 md-spinner--blue"
+        />
+        <p className="wait-message">Please wait, fetching data...</p>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="main">
       <h1 className="heading">Cal App</h1>
-      <div className="btn">
-        <div className="row">
+      <div className="create-btn">
+        <div className="row-end">
           <Button
             className="head"
             children="Create Event"
             onClick={() => setCreateModalStatus(true)}
             color="blue"
           />
-          {showCreateModal && (
-            <CreateEvent
+          {(showCreateModal || showEditModal) && (
+            <EventModal
               showCreateModal={showCreateModal}
               setCreateModalStatus={setCreateModalStatus}
-              createEvent={createEvent}
+              showEditModal={showEditModal}
+              setEditModalStatus={setEditModalStatus}
+              selectedObj={selectedEventObj}
             />
           )}
         </div>
       </div>
-      {showEditModal && (
-        <EditEvent
-          showEditModal={showEditModal}
-          setEditModalStatus={setEditModalStatus}
-          selectedObj={selectedEventObj}
-        />
-      )}
-      
+
+      <Loading isVisible={overLayLoading} />
+
       <Calendar
         localizer={localizer}
         events={allEvents}
@@ -108,11 +128,21 @@ export default function Cal() {
           setSelectedEventObj(e);
           setEditModalStatus(true);
         }}
+        onRangeChange={(range,view)=>{
+          if(range.start || view==='month'){
+            setOverLayLoading(true)
+            var dt = new Date(range.start)
+            dt.setDate(dt.getDate() + 8);
+            return populatEventFunction(dt.getFullYear()+"-"+(dt.getMonth()))
+          }
+        
+        }}
         startAccessor="start"
         endAccessor="end"
-        style={{ height: 500, margin: "80px" }}
+        style={{ height: 500, margin: "50px", width: "80%" }}
         timeslots={1}
         eventPropGetter={eventStyleGetter}
+        popup="true"
       />
     </div>
   );

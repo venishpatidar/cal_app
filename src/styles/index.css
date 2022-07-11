@@ -1,0 +1,113 @@
+.main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .wait-message {
+    margin-top: 6px;
+    font-size: 16px;
+  }
+  
+  .heading {
+    margin-top: 2rem;
+    color: #007aa3;
+    font-weight: 600;
+  }
+  
+  .md-modal__title {
+    font-size: larger;
+  }
+  
+  .create-btn {
+    margin-top: 2rem;
+    width: 80%;
+  }
+  
+  .filter .md-input-container {
+    margin-bottom: 0 !important;
+  }
+  
+  .row-end {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 1rem;
+    width: 620px;
+  }
+  
+  .options {
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%;
+    align-items: center;
+  }
+  
+  .input {
+    width: 15rem;
+    background-color: #fff;
+    border-color: #ccc;
+    overflow: visible;
+  }
+  
+  .md-input:hover {
+    background-color: #fff !important;
+  }
+  
+  .rdtOpen .rdtPicker {
+    display: block;
+    position: fixed;
+  }
+  
+  .input button {
+    background-color: #fff !important;
+    border: 1px solid #ccc !important;
+  }
+  
+  .rdt {
+    margin-left: -36px;
+    margin-bottom: 18px;
+    height: 34px;
+  }
+  
+  .form-control {
+    width: 100%;
+    background-color: #fff !important;
+    border: 1px solid #ccc !important;
+    height: 34px;
+    border-radius: 4px;
+    padding-left: 16px;
+  }
+  
+  textarea {
+    background-color: #fff !important;
+    border: 1px solid #ccc !important;
+    margin-left: -46px;
+    border-radius: 4px;
+    padding-left: 16px;
+  }
+  
+  .error {
+    color: crimson;
+    margin-right: auto;
+    margin-left: 5rem;
+  }
+
+  .required-field::after{
+    content: "*";
+    color: crimson;
+  }
