@@ -10,6 +10,7 @@ import { Button } from "@momentum-ui/react";
 import { firestore } from "../../config/firebase-config";
 import EventModal from "./EventModal";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { AlertContainer, Alert } from "@momentum-ui/react";
 
 const localizer = momentLocalizer(moment);
 
@@ -34,6 +35,17 @@ export default function Cal() {
   const [selectedEventObj, setSelectedEventObj] = useState({});
   const [isFetching, setIsFetching] = useState(true);
   const [overLayLoading,setOverLayLoading] = useState(false)
+
+  const [alertMessageArray,setAlertMessageArray] = useState({});
+  const [alertKey,setAlertKey] = useState(0)
+  const [alertKeyContainerRefresher,setAlertKeyContainerRefresher] = useState(0)
+  const showAlertMessage = (type='info', message) => {
+    alertMessageArray[alertKey] = {alertMessage:message,alertType:type}
+    setAlertMessageArray(alertMessageArray)
+    setAlertKey(alertKey+1)
+  }
+
+
   const populatEventFunction = (currentMonth)=>{
 
     const Q = query(collection(firestore, "Events"), where("months", "array-contains", currentMonth));
@@ -114,6 +126,7 @@ export default function Cal() {
               showEditModal={showEditModal}
               setEditModalStatus={setEditModalStatus}
               selectedObj={selectedEventObj}
+              showAlertMessage={showAlertMessage}
             />
           )}
         </div>
@@ -144,6 +157,27 @@ export default function Cal() {
         eventPropGetter={eventStyleGetter}
         popup="true"
       />
+
+      <AlertContainer key={alertKeyContainerRefresher}>
+        {Object.entries(alertMessageArray).map((data,index)=>{
+          return(
+            <Alert
+              key={index}
+              closable
+              message={data[1].alertMessage}
+              dismissBtnProps={{
+                onClick: () =>{
+                  delete alertMessageArray[data[0]]
+                  setAlertKeyContainerRefresher(alertKeyContainerRefresher?0:1)
+                }
+              }}
+              type={data[1].alertType}
+              show={true}
+            />
+          )
+        })}
+        
+      </AlertContainer>
     </div>
   );
 }
